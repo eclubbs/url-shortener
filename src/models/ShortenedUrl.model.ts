@@ -1,4 +1,4 @@
-import { isNonEmptyString, isString, isUnsignedInteger } from 'jet-validators';
+import { isInteger, isNonEmptyString, isOptionalDate, isString, isUnsignedInteger } from 'jet-validators';
 import { parseObject, Schema, testObject } from 'jet-validators/utils';
 
 import { transformIsDate } from '@src/common/utils/validators';
@@ -9,18 +9,24 @@ import { Entity } from './common/types';
                                  Constants
 ******************************************************************************/
 
-const GetDefaults = (): IUser => ({
+const GetDefaults = (): IShortenedUrl => ({
   id: 0,
-  name: '',
-  email: '',
+  key: '',
+  targetUrl: '',
   created: new Date(),
+  lastVisited: undefined,
+  visitCount: 0,
+  expires: undefined
 });
 
-const schema: Schema<IUser> = {
+const schema: Schema<IShortenedUrl> = {
   id: isUnsignedInteger,
-  name: isString,
-  email: isString,
+  key: isString,
+  targetUrl: isString,
   created: transformIsDate,
+  lastVisited: isOptionalDate,
+  visitCount: isInteger,
+  expires: isOptionalDate,
 };
 
 /******************************************************************************
@@ -28,26 +34,30 @@ const schema: Schema<IUser> = {
 ******************************************************************************/
 
 /**
- * @entity users
+ * @entity shortenedUrl
  */
-export interface IUser extends Entity {
-  name: string;
-  email: string;
+export interface IShortenedUrl extends Entity {
+  key: string;
+  targetUrl: string;
+  visitCount: number;
+  lastVisited?: Date | undefined;
+  expires?: Date | undefined
 }
 
 /******************************************************************************
                                   Setup
 ******************************************************************************/
 
-// Set the "parseUser" function
-const parseUser = parseObject<IUser>(schema);
+// Set the "parseShortenedUrl" function
+const parseShortenedUrl = parseObject<IShortenedUrl>(schema);
 
 // For the APIs make sure the right fields are complete
-const isCompleteUser = testObject<IUser>({
+const isCompleteUrl = testObject<IShortenedUrl>({
   ...schema,
-  name: isNonEmptyString,
-  email: isNonEmptyString,
+  key: isNonEmptyString,
+  targetUrl: isNonEmptyString,
 });
+
 
 /******************************************************************************
                                  Functions
@@ -56,9 +66,9 @@ const isCompleteUser = testObject<IUser>({
 /**
  * New user object.
  */
-function new_(user?: Partial<IUser>): IUser {
-  return parseUser({ ...GetDefaults(), ...user }, (errors) => {
-    throw new Error('Setup new user failed ' + JSON.stringify(errors, null, 2));
+function new_(shortenedUrl?: Partial<IShortenedUrl>): IShortenedUrl {
+  return parseShortenedUrl({ ...GetDefaults(), ...shortenedUrl }, (errors) => {
+    throw new Error('Create new shortenedUrl failed ' + JSON.stringify(errors, null, 2));
   });
 }
 
@@ -68,5 +78,5 @@ function new_(user?: Partial<IUser>): IUser {
 
 export default {
   new: new_,
-  isComplete: isCompleteUser,
+  isComplete: isCompleteUrl,
 } as const;

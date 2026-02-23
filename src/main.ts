@@ -7,8 +7,6 @@ import { loadEnvFile } from 'node:process';
 
 loadEnvFile(process.env.DOTENV_CONFIG_PATH);
 
-console.log(process.env);
-
 /******************************************************************************
                                 Constants
 ******************************************************************************/

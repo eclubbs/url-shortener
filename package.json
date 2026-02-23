@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "start": "SET DOTENV_CONFIG_PATH=./config/.env.production& node -r dotenv/config -r module-alias/register ./dist/main.js",
-    "test": "SET NODE_ENV=test & vitest",
+    "test": "SET NODE_ENV=test& vitest",
     "type-check": "tsc -b --noEmit"
   },
   "engines": {

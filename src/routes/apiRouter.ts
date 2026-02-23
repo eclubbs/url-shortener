@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import UserRoutes from './ShortenedUrlRoutes';
+import ShortenedUrlRoutes from './ShortenedUrlRoutes';
 
 /******************************************************************************
                                 Setup
@@ -9,8 +9,8 @@ const apiRouter = Router();
 
 // ----------------------- Add UserRouter --------------------------------- //
 
-apiRouter.get("/:key", UserRoutes.get);
-apiRouter.post("/urls/add", UserRoutes.add);
+apiRouter.get("/:key", ShortenedUrlRoutes.get);
+apiRouter.post("/urls/add", ShortenedUrlRoutes.add);
 
 /******************************************************************************
                                 Export

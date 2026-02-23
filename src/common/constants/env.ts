@@ -1,6 +1,6 @@
 import { loadEnvFile } from 'node:process';
+/* eslint-disable no-process-env */ 
 
-loadEnvFile(process.env.DOTENV_CONFIG_PATH);
 
 /******************************************************************************
                                  Constants
@@ -17,6 +17,7 @@ export const NodeEnvs = {
                                  Setup
 ******************************************************************************/
 
+loadEnvFile(process.env.DOTENV_CONFIG_PATH);
 const EnvVars =
 {
   NodeEnv: process.env.NODE_ENV || 'development',

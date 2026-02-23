@@ -1,4 +1,4 @@
-import ShortenedUrlModel, { IShortenedUrl } from '@src/models/ShortenedUrl.model';
+import { IShortenedUrl } from '@src/models/ShortenedUrl.model';
 
 import orm from './MockOrm';
 import { getRandomAlphaNumeric } from '@src/common/utils/string-utils';
@@ -28,12 +28,14 @@ async function add(url: IShortenedUrl): Promise<IShortenedUrl> {
   url.id = newId;
   url.key = getRandomAlphaNumeric(ShortenedUrlConfig.KeyLength)
 
-  const expiryDate = new Date();
-  expiryDate.setDate(url.created.getDate() + ShortenedUrlConfig.DefaultExpiryInDays);
-  url.expires = expiryDate;
+  if (!url.expires) {
+    const expiryDate = new Date();
+    expiryDate.setDate(url.created.getDate() + ShortenedUrlConfig.DefaultExpiryInDays);
+    url.expires = expiryDate;
+  }
 
   db.urls.push(url);
-  orm.saveDb(db);
+  await orm.saveDb(db);
   return url;
 }
 
@@ -85,7 +87,7 @@ async function delete_(key: string): Promise<void> {
  *
  * Delete every user record.
  */
-async function deleteAllUsers(): Promise<void> {
+async function deleteAllUrls(): Promise<void> {
   const db = await orm.openDb();
   db.urls = [];
   return orm.saveDb(db);
@@ -94,21 +96,21 @@ async function deleteAllUsers(): Promise<void> {
 /**
  * @testOnly
  *
- * Insert multiple users. Can't do multiple at once cause using a plain file
+ * Insert multiple urls. Can't do multiple at once cause using a plain file
  * for now.
  */
 async function insertMultiple(
-  users: IShortenedUrl[] | readonly IShortenedUrl[],
+  urls: IShortenedUrl[] | readonly IShortenedUrl[],
 ): Promise<IShortenedUrl[]> {
   const db = await orm.openDb(),
-    usersF = [...users];
-  for (const user of usersF) {
-    user.id = getRandomInt();
-    user.created = new Date();
+    urlsF = [...urls];
+  for (const url of urlsF) {
+    url.id = getRandomInt();
+    url.created = new Date();
   }
-  db.urls = [...db.urls, ...users];
+  db.urls = [...db.urls, ...urls];
   await orm.saveDb(db);
-  return usersF;
+  return urlsF;
 }
 
 /******************************************************************************
@@ -121,6 +123,6 @@ export default {
   exists,
   update,
   delete: delete_,
-  deleteAllUsers,
+  deleteAllUrls,
   insertMultiple,
 } as const;

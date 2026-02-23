@@ -1,4 +1,4 @@
-import { isDate } from 'jet-validators';
+import { isDate, isOptionalDate } from 'jet-validators';
 import { transform } from 'jet-validators/utils';
 import ShortenedUrlConfig from '../constants/ShortenedUrlConfig';
 
@@ -12,6 +12,14 @@ import ShortenedUrlConfig from '../constants/ShortenedUrlConfig';
 export const transformIsDate = transform(
   (arg) => new Date(arg as string),
   (arg) => isDate(arg)
+);
+
+export const transformIsOptionalDate = 
+// (arg:unknown) => 
+//   (!arg) ? isDate(new Date()) : transformIsDate;
+  transform<Date | undefined, Date | undefined>(
+  (arg) => arg ? new Date(arg as string) : undefined,
+  (arg) =>  isOptionalDate(arg)
 );
 
 

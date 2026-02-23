@@ -2,11 +2,9 @@ import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import logger from 'jet-logger';
 import morgan from 'morgan';
-import path from 'path';
 
-import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
 import Paths from '@src/common/constants/Paths';
-import { RouteError } from '@src/common/utils/route-errors';
+import { RouteError, ValidationError } from '@src/common/utils/route-errors';
 import BaseRouter from '@src/routes/apiRouter';
 
 import EnvVars, { NodeEnvs } from './common/constants/env';
@@ -44,11 +42,12 @@ app.use((err: Error, _: Request, res: Response, next: NextFunction) => {
   if (EnvVars.NodeEnv !== NodeEnvs.TEST.valueOf()) {
     logger.err(err, true);
   }
-  let status: HttpStatusCodes = HttpStatusCodes.BAD_REQUEST;
-  if (err instanceof RouteError) {
-    status = err.status;
-    res.status(status).json({ error: err.message });
+
+  if (err instanceof RouteError || err instanceof ValidationError  ) {
+    const status = err.status;
+    res.status(status).send({ error: err.message });
   }
+  
   return next(err);
 });
 

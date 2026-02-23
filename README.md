@@ -14,10 +14,8 @@ Create a simple URL Shortening Service that:
 
   1. Accepts a long URL and returns a shortened version
   2. Redirects short links to the original URL
-  3.
-Handles invalid or empty URLs gracefully
-  4.
-Include automated tests
+  3. Handles invalid or empty URLs gracefully
+  4. Include automated tests
 
 Optional:
 
@@ -30,24 +28,11 @@ Optional:
 
 
 
-## About
+## Setup
 
-This project was created with [express-generator-typescript](https://github.com/seanpmaxwell/express-generator-typescript).
+This project builds on the [express-generator-typescript](https://github.com/seanpmaxwell/express-generator-typescript) package.
+The following commands are available.
 
-**IMPORTANT** for demo purposes I had to disable `helmet` in production. In any real world app you should change these 3 lines of code in `src/server.ts`:
-
-```ts
-// eslint-disable-next-line n/no-process-env
-if (!process.env.DISABLE_HELMET) {
-  app.use(helmet());
-}
-```
-
-To just this:
-
-```ts
-app.use(helmet());
-```
 
 ## Available Scripts
 

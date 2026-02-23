@@ -1,11 +1,6 @@
 import logger from 'jet-logger';
 import EnvVars from './common/constants/env';
 import server from './server';
-import { loadEnvFile } from 'node:process';
-
-
-
-loadEnvFile(process.env.DOTENV_CONFIG_PATH);
 
 /******************************************************************************
                                 Constants

@@ -1,7 +1,7 @@
 import { isInteger, isNonEmptyString, isOptionalDate, isString, isUnsignedInteger } from 'jet-validators';
 import { parseObject, Schema, testObject } from 'jet-validators/utils';
 
-import { transformIsDate } from '@src/common/utils/validators';
+import { transformIsDate, transformIsOptionalDate} from '@src/common/utils/validators';
 
 import { Entity } from './common/types';
 
@@ -26,7 +26,7 @@ const schema: Schema<IShortenedUrl> = {
   created: transformIsDate,
   lastVisited: isOptionalDate,
   visitCount: isInteger,
-  expires: isOptionalDate,
+  expires: transformIsOptionalDate,
 };
 
 /******************************************************************************
@@ -41,7 +41,7 @@ export interface IShortenedUrl extends Entity {
   targetUrl: string;
   visitCount: number;
   lastVisited?: Date | undefined;
-  expires?: Date | undefined
+  expires?: Date | undefined;
 }
 
 /******************************************************************************

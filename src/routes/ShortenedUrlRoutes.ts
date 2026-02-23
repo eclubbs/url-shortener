@@ -1,13 +1,14 @@
 import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
 import ShortenedUrlService from '@src/services/ShortenedUrlService';
 
-import { Request, Response  } from 'express';
+import { Response } from 'express';
 import parseReq from './common/parseReq';
 import { isValidKey,isValidUrl } from '@src/common/utils/validators';
-import ShortenedUrl from '@src/models/ShortenedUrl.model';
+import ShortenedUrl, { IShortenedUrl } from '@src/models/ShortenedUrl.model';
 
 import logger from 'jet-logger';
-import EnvVars from '@src/common/constants/env';
+import { RouteError } from '@src/common/utils/route-errors';
+import { RequestWithBody, RequestWithParams, UrlResponse } from './common/express-types';
 
 /******************************************************************************
                                 Constants
@@ -23,20 +24,21 @@ const reqValidators = {
 ******************************************************************************/
 
 /**
- * Get all users.
+ * Get a redirect from an existing shortened url.
  *
- * @route GET /
+ * @route GET /:key
  */
-async function get(req: Request, res: Response) {
-  const { key } = reqValidators.get(req.params);
-  const shortenedUrl = await ShortenedUrlService.get(key as string);
+async function get(req: RequestWithParams, res: Response) {
+  reqValidators.get(req.params);
+  const key:string  = req.params.key; 
+  const shortenedUrl = await ShortenedUrlService.get(key);
 
   if (!shortenedUrl) {
     res.status(HttpStatusCodes.NOT_FOUND).send('This link cannot be found. Please verify it was entered correctly and try again.');
     return;
   }
 
-  logger.info(`Shortened url retrieved : ${shortenedUrl.key} -  ${shortenedUrl.targetUrl}. Created ${shortenedUrl.created}. Expires ${shortenedUrl.expires}. Visit Count: ${shortenedUrl.visitCount}`);
+  logger.info(`Shortened url retrieved : ${shortenedUrl.key} - ${shortenedUrl.targetUrl}. Visit Count: ${shortenedUrl.visitCount}`);
 
   if (shortenedUrl.expires && new Date(shortenedUrl.expires) < new Date()) {
     res.status(HttpStatusCodes.GONE).send('This link has expired and is no longer available.');
@@ -55,15 +57,19 @@ async function get(req: Request, res: Response) {
  *
  * @route POST /urls/add
  */
-async function add(req: Request, res: Response) {
-  const { targetUrl } = reqValidators.add(req.body);
-  const newUrl = ShortenedUrl.new({targetUrl: targetUrl as string});
+async function add(req: RequestWithBody<IShortenedUrl>, res: UrlResponse) {
+  reqValidators.add(req.body);
+ 
+  const newUrl = ShortenedUrl.new({...req.body});
   const shortenedUrl = await ShortenedUrlService.add(newUrl);
   
   const absoluteUrl = URL.parse(`./${shortenedUrl.key}`,`${req.protocol}://${req.host}`);
-  console.log(req);
-  logger.info(`New shortened url created: ${shortenedUrl.key} - ${targetUrl} - ${absoluteUrl} -  ${req.protocol + req.host}` )
-  res.status(HttpStatusCodes.CREATED).send(absoluteUrl);
+  if (!absoluteUrl)
+    throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, `Error creating a shortened url for ${shortenedUrl.targetUrl}`);
+
+  logger.info(`New shortened url created: ${shortenedUrl.key} - ${shortenedUrl.targetUrl} - ${absoluteUrl.href}` );
+
+  res.status(HttpStatusCodes.CREATED).json({shortenedUrl: absoluteUrl, expires: shortenedUrl.expires});
 }
 
 /******************************************************************************

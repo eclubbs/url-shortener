@@ -1,7 +1,7 @@
 import HttpStatusCodes from '@src/common/constants/HttpStatusCodes';
 import { JetPaths as Paths } from '@src/common/constants/Paths';
 import { ValidationError } from '@src/common/utils/route-errors';
-import ShortenedUrl, { IShortenedUrl } from '@src/models/ShortenedUrl.model';
+import ShortenedUrl from '@src/models/ShortenedUrl.model';
 import ShortenedUrlRepo from '@src/repos/ShortenedUrlRepo';
 
 import { agent } from './support/agent';
@@ -15,10 +15,10 @@ import { parseValidationError } from './common/error-utils';
 const DUMMY_URLS = [
   ShortenedUrl.new({id:873592853161,key:"RiKa5t",targetUrl:"https://www.youtube.com/watch?v=dQw4w9WgXcQ",created:new Date("2026-02-22T15:38:18.643Z"),visitCount:4,lastVisited:new Date("2026-02-23T10:22:34.778Z")}),
   ShortenedUrl.new({id:873592853162,key:"Hb3X00",targetUrl:"https://hubexo.com/",created:new Date("2026-02-22T15:38:18.643Z"),visitCount:0,lastVisited:new Date("2026-02-23T00:57:55.334Z")}),
-  ShortenedUrl.new({id:873592853163,key:"B8Fkta",targetUrl:"https://www.byggfakta.no/smart-engelsk",created:new Date("2025-02-22T15:38:18.643Z"), expires: new Date("2026-02-22T15:38:18.643Z"),visitCount:1,lastVisited:new Date("2026-02-23T01:07:17.987Z")}),
+  ShortenedUrl.new({id:873592853163,key:"EXPIRD",targetUrl:"https://www.byggfakta.no/smart-engelsk",created:new Date("2025-02-22T15:38:18.643Z"), expires: new Date("2026-02-22T15:38:18.643Z"),visitCount:1,lastVisited:new Date("2026-02-23T01:07:17.987Z")}),
 ] as const;
 
-const { BAD_REQUEST, CREATED, OK, NOT_FOUND, FOUND } = HttpStatusCodes;
+const { BAD_REQUEST, CREATED, NOT_FOUND, FOUND, GONE } = HttpStatusCodes;
 
 /******************************************************************************
                                  Tests
@@ -28,14 +28,13 @@ const { BAD_REQUEST, CREATED, OK, NOT_FOUND, FOUND } = HttpStatusCodes;
 ******************************************************************************/
 
 describe('ShortenedUrlRoutes', () => {
-  let dbUsers: IShortenedUrl[] = [];
 
   beforeEach(async () => {
-    await ShortenedUrlRepo.deleteAllUsers();
-    dbUsers = await ShortenedUrlRepo.insertMultiple(DUMMY_URLS);
+    await ShortenedUrlRepo.deleteAllUrls();
+    await ShortenedUrlRepo.insertMultiple(DUMMY_URLS);
   });
 
-  describe(`"GET:${Paths.Get}"`, () => {
+  describe(`"GET:/"`, () => {
     it(
       'should return a redirect to the targetUrl and a status code of ' +
         `"${FOUND}" if the request was successful.`,
@@ -60,11 +59,11 @@ describe('ShortenedUrlRoutes', () => {
 
     it(
       'should return a status code of ' +
-        `"${NOT_FOUND}" if the key is not present within the url list`,
+        `"${GONE}" if the key is not present within the url list`,
       async () => {
-        const nonExistentKey = 'ABCDEF'
-        const res: TestRes = await agent.get(`/${nonExistentKey}`);
-        expect(res.status).toBe(NOT_FOUND);
+        const expiredKey = 'EXPIRD'
+        const res: TestRes = await agent.get(`/${expiredKey}`);
+        expect(res.status).toBe(GONE);
       },
     );
 
@@ -100,10 +99,23 @@ describe('ShortenedUrlRoutes', () => {
       `should return a status code of "${CREATED}" and a valid shortened url if the request was ` +
         'successful.',
       async () => {
-        const urlToBeShortened = 'https://www.hubexo.com'
-        const res: TestRes<string> = await agent.post(Paths.Urls.Add).send({ targetUrl: urlToBeShortened });
+        const urlToBeShortened = 'https://www.hubexo.com';
+        const res: TestRes<{ shortenedUrl:URL }> = await agent.post(Paths.Urls.Add).send({ targetUrl: urlToBeShortened });
         expect(res.status).toBe(CREATED);
-        expect(URL.parse(res.body)).not.toBeNull();
+        expect(res.body.shortenedUrl).not.toBeNull();
+      },
+    );
+
+    it(
+      `should return a status code of "${CREATED}" and the expires value should match the value sent if ` +
+        'sent with an expires value.',
+      async () => {
+        const urlToBeShortened = 'https://www.hubexo.com';
+        const expiryDate = new Date();
+        const res: TestRes<{ shortenedUrl:URL, expires: Date }> = await agent.post(Paths.Urls.Add).send({ targetUrl: urlToBeShortened, expires: expiryDate });
+        expect(res.status).toBe(CREATED);
+        expect(res.body.shortenedUrl).not.toBeNull();
+        expect(new Date(res.body.expires)).toEqual(expiryDate);
       },
     );
 

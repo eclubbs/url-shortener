@@ -153,10 +153,12 @@ Once installed you can run the service in development mode via the commands:
 The latter will use nodemon to automatically reload the server if any code changes are made.
 
 Once the service is running it will be accessible at the address 'http://localhost:3000'.
+
 You can test the redirect is working by visiting the pre-created short link: 'http://localhost:3000/RiKa5t'.
+
 Example calls to the service can be found in the included Postman file (`Hubexo CodeTest.postman_collection.json`).
 
-
+### npm commands
 The following additional npm commands are also available:
 
 `npm run clean-install`

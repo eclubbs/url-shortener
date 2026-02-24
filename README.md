@@ -144,42 +144,42 @@ This project builds on the [express-generator-typescript](https://github.com/sea
 
 To setup, first ensure you have an up-to-date version of Node.js and npm installed. Navigate to the root folder of the project in a terminal program of your choice and run the following:
 
-### `npm install`
+`npm install`
 
 Once installed you can run the service in development mode via the commands:
 
-### `npm run dev` or `npm run dev:watch`
+`npm run dev` or `npm run dev:watch`
 
 The latter will use nodemon to automatically reload the server if any code changes are made.
 
-Once the service is running it will be accessible at the address `http://localhost:3000'.
+Once the service is running it will be accessible at the address 'http://localhost:3000'.
 You can test the redirect is working by visiting the pre-created short link: 'http://localhost:3000/RiKa5t'.
 Example calls to the service can be found in the included Postman file (`Hubexo CodeTest.postman_collection.json`).
 
 
 The following additional npm commands are also available:
 
-### `npm run clean-install`
+`npm run clean-install`
 
 Remove the existing `node_modules/` folder, `package-lock.json`, and reinstall all library modules.
 
-### `npm test`
+`npm test`
 
 Run unit-tests with <a href="https://vitest.dev/guide/">vitest</a>.
 
-### `npm run lint`
+`npm run lint`
 
 Check for linting errors.
 
-### `npm run build`
+`npm run build`
 
 Build the project for production.
 
-### `npm start`
+`npm start`
 
 Run the production build (Must be built first).
 
-### `npm run type-check`
+`npm run type-check`
 
 Check for typescript errors.
 

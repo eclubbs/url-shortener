@@ -25,26 +25,143 @@ Optional:
 
 
 
+## The Solution
 
+This project is a [Node.js](https://nodejs.org/en/download/current) project using [Express](https://expressjs.com/) and written in [Typescript](https://www.typescriptlang.org/).
+
+It is a simple service with two endpoints. 
+
+```
+GET /:key (where key is a six character alphanumeric)
+
+Response:
+A 302 Redirect to the saved URL.
+
+```
+
+### GET Examples
+
+```
+Request: 
+
+GET http://localhost:3000/hUbX00
+
+Response:
+
+302 Redirect to https://www.hubexo.com/about
+
+```
+
+Request to a non-existent link
+```
+Request: 
+
+GET http://localhost:3000/N0X1sT
+
+Response:
+
+404 This link cannot be found. Please verify it was entered correctly and try again.
+
+```
+
+Request to an expired link
+```
+Request: 
+
+GET http://localhost:3000/eXp1RD
+
+Response:
+
+410 This link has expired and is no longer available.
+
+```
+
+```
+POST /urls/add
+
+Request: 
+
+{
+    "targetUrl":"[A valid URL to be shortened]",
+    "expires": "[(Optional) A valid date string to set the expiry time of the generated link]"
+}
+
+Response:
+
+{
+    "shortenedUrl":"[The shortened URL that will redirec to the supplied targetUrl]",
+    "expires": "[The expiry time of the generated link]"
+}
+
+```
+
+### POST Examples
+
+Request without expiry date. Expiry defaults to 1 year from link creation (configurable)
+
+```
+Request: 
+
+{
+    "targetUrl":"https://www.hubexo.com/about"
+}
+
+Response:
+
+{
+    "shortenedUrl":"http://localhost:3000/es9xhc",
+    "expires": "2027-02-23T23:05:01.667Z"
+}
+
+```
+
+Request with expiry date
+```
+Request: 
+
+{
+    "targetUrl":"https://www.hubexo.com/about",
+    "expires": "2026-02-22T15:38:18.643Z"
+}
+
+Response:
+
+{
+    "shortenedUrl":"http://localhost:3000/es9xhc",
+    "expires": "2026-02-22T15:38:18.643Z"
+}
+
+```
+
+
+
+The created links are persisted in the `/repos/common/database.json` file. This file also tracks how often and how recently a link has been visited via `visitCount` and `lastVisited` properties.
 
 
 ## Setup
 
 This project builds on the [express-generator-typescript](https://github.com/seanpmaxwell/express-generator-typescript) package.
-The following commands are available.
+
+To setup, first ensure you have an up-to-date version of Node.js and npm installed. Navigate to the root folder of the project in a terminal program of your choice and run the following:
+
+### `npm install`
+
+Once installed you can run the service in development mode via the commands:
+
+### `npm run dev` or `npm run dev:watch`
+
+The latter will use nodemon to automatically reload the server if any code changes are made.
+
+Once the service is running it will be accessible at the address `http://localhost:3000'.
+You can test the redirect is working by visiting the pre-created short link: 'http://localhost:3000/RiKa5t'.
+Example calls to the service can be found in the included Postman file (`Hubexo CodeTest.postman_collection.json`).
 
 
-## Available Scripts
+The following additional npm commands are also available:
 
 ### `npm run clean-install`
 
 Remove the existing `node_modules/` folder, `package-lock.json`, and reinstall all library modules.
-
-### `npm run dev` or `npm run dev:watch` (hot reloading)
-
-Run the server in development mode.<br/>
-
-**IMPORTANT** development mode uses `swc` for performance reasons which DOES NOT check for typescript errors. Run `npm run type-check` to check for type errors. NOTE: you should use your IDE to prevent most type errors.
 
 ### `npm test`
 
@@ -66,6 +183,23 @@ Run the production build (Must be built first).
 
 Check for typescript errors.
 
-## Additional Notes
+### Additional Notes
 
 - If `npm run dev` gives you issues with bcrypt on MacOS you may need to run: `npm rebuild bcrypt --build-from-source`.
+
+
+## Future improvements
+
+Moving forward, this service could be improved by the following actions:
+
+* Implementation of SSL.
+* Moving persistence into a lightweight database, for improved speed and robustness of access and storage.
+* Expanding click tracking into its own database table, capturing user details from request headers to enable the data to be analysed. 
+* Adding user authentication to allow users to review their created links, see how they are performing, and delete them or alter the expiry date(s).
+* Admin user authentication and new endpoints that aid the easy managing of the data (link editing/deletion, user CRUD).
+* Adding Swagger for greater visibility and understanding of the endpoints.
+
+
+
+
+

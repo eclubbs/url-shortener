@@ -3,7 +3,7 @@ import ShortenedUrlService from '@src/services/ShortenedUrlService';
 
 import { Response } from 'express';
 import parseReq from './common/parseReq';
-import { isValidKey,isValidUrl } from '@src/common/utils/validators';
+import { isValidKey, isValidUrl, transformIsOptionalDate } from '@src/common/utils/validators';
 import ShortenedUrl, { IShortenedUrl } from '@src/models/ShortenedUrl.model';
 
 import logger from 'jet-logger';
@@ -16,7 +16,7 @@ import { RequestWithBody, RequestWithParams, UrlResponse } from './common/expres
 
 const reqValidators = {
   get: parseReq({ key: isValidKey }),
-  add: parseReq({ targetUrl: isValidUrl }),
+  add: parseReq({ targetUrl: isValidUrl, expires: transformIsOptionalDate }),
 } as const;
 
 /******************************************************************************

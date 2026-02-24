@@ -67,19 +67,6 @@ async function update(url: IShortenedUrl): Promise<void> {
   return orm.saveDb(db);
 }
 
-/**
- * Delete one url.
- */
-async function delete_(key: string): Promise<void> {
-  const db = await orm.openDb();
-  for (let i = 0; i < db.urls.length; i++) {
-    if (db.urls[i].key === key) {
-      db.urls.splice(i, 1);
-      return orm.saveDb(db);
-    }
-  }
-}
-
 // **** Unit-Tests Only **** //
 
 /**
@@ -122,7 +109,6 @@ export default {
   add,
   exists,
   update,
-  delete: delete_,
   deleteAllUrls,
   insertMultiple,
 } as const;

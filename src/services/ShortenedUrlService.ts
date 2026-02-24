@@ -40,16 +40,6 @@ async function update(url: IShortenedUrl): Promise<void> {
   return ShortenedUrlRepo.update(url);
 }
 
-/**
- * Delete a url by its id.
- */
-async function deleteOne(key: string): Promise<void> {
-  const exists = await ShortenedUrlRepo.exists(key);
-  if (!exists) {
-    throw new RouteError(HttpStatusCodes.NOT_FOUND, Errors.URL_NOT_FOUND);
-  }
-  return ShortenedUrlRepo.delete(key);
-}
 
 /******************************************************************************
                                 Export default
@@ -59,6 +49,5 @@ export default {
   Errors,
   get,
   add,
-  update,
-  delete: deleteOne,
+  update
 } as const;
